@@ -1,18 +1,14 @@
-from django.shortcuts import render
 from rest_framework import viewsets
 from reviews.models import Category, Genre, Title
 from .serializers import CategorySerializer
 from .serializers import GenreSerializer
 from .serializers import TitleSerializer
-from .permissions import IsAuthorOrReadOnlyPermission
-from .permissions import IsAdminUserOrReadOnly
+# from .permissions import IsAuthorOrReadOnlyPermission
+# from .permissions import IsAdminUserOrReadOnly
 from .permissions import IsAll
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.pagination import PageNumberPagination 
-from django.http import Http404
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -22,20 +18,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     pagination_class = PageNumberPagination
 
-    def destroy(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            self.perform_destroy(instance)
-        except Http404:
-            pass
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class GenreViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     permission_classes = (IsAll,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = PageNumberPagination  
+    pagination_class = PageNumberPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
