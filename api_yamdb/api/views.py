@@ -36,3 +36,4 @@ class TitleViewSet(viewsets.ModelViewSet):
                        filters.OrderingFilter)
     search_fields = ('category', 'genre', 'name', 'year',)
     ordering_fields = ('name', 'year')
+    pagination_class = PageNumberPagination
