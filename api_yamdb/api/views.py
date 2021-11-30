@@ -7,20 +7,35 @@ from .serializers import TitleSerializer
 from .permissions import IsAuthorOrReadOnlyPermission
 from .permissions import IsAdminUserOrReadOnly
 from .permissions import IsAll
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination 
+from django.http import Http404
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+    lookup_field = 'slug'
     permission_classes = (IsAll,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    pagination_class = None
+    pagination_class = PageNumberPagination
 
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+        except Http404:
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class GenreViewSet(viewsets.ModelViewSet):
+    lookup_field = 'slug'
     permission_classes = (IsAll,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = None
+    pagination_class = PageNumberPagination  
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -28,3 +43,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     pagination_class = None
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,
+                       filters.OrderingFilter)
+    search_fields = ('category', 'genre', 'name', 'year',)
+    ordering_fields = ('name', 'year')

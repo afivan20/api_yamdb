@@ -2,68 +2,47 @@ from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 from django.core.exceptions import ValidationError
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, GenreTitle
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    lookup_field = 'slug'
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'slug')
+        fields = ('name', 'slug')
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    lookup_field = 'slug'
 
     class Meta:
         model = Genre
-        fields = ('id', 'name', 'slug')
+        fields = ('name', 'slug')
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True, required=False)
+    # genre = GenreSerializer(read_only=True, many=True)
+    # category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, required=False,)
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        required=False,
+        slug_field='name')
 
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'description', 'category', 'genre')
 
-
-# class PostSerializer(serializers.ModelSerializer):
-#     author = SlugRelatedField(slug_field='username', read_only=True)
-
-#     class Meta:
-#         fields = '__all__'
-#         model = Post
-
-
-# class CommentSerializer(serializers.ModelSerializer):
-#     author = serializers.SlugRelatedField(
-#         read_only=True, slug_field='username',)
-
-#     class Meta:
-#         fields = '__all__'
-#         model = Comment
-
-
-# class FollowSerializer(serializers.ModelSerializer):
-#     user = serializers.SlugRelatedField(
-#         slug_field='username',
-#         queryset=User.objects.all(),
-#         default=serializers.CurrentUserDefault())
-#     following = serializers.SlugRelatedField(
-#         slug_field='username',
-#         queryset=User.objects.all())
-
-#     class Meta:
-#         model = Follow
-#         fields = ('user', 'following')
-#         validators = (
-#             UniqueTogetherValidator(
-#                 queryset=Follow.objects.all(),
-#                 fields=('user', 'following', )
-#             ),
-#         )
-
-#     def validate(self, data):
-#         if data['user'] == data['following']:
-#             raise ValidationError('You can\'t subscribe to sai yourself')
-#         return data
+    # def create(self, validated_data):
+    #     if 'tag' not in self.initial_data:
+    #         post = Post.objects.create(**validated_data)
+    #         return post
+    #     tags = validated_data.pop('tag')
+    #     post = Post.objects.create(**validated_data)
+    #     for tag in tags:
+    #         current_tag, status = Tag.objects.get_or_create(
+    #             **tag)
+    #         TagPost.objects.create(
+    #             tag=current_tag, post=post)
+    #     return post
