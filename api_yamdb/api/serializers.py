@@ -33,7 +33,9 @@ class TitleSerializer(serializers.ModelSerializer):
     def validate_year(self, value):
         thisyear = dt.date.today().year
         if not (thisyear - 500 < int(value) <= thisyear):
-            raise serializers.ValidationError('Проверьте год!')
+            raise serializers.ValidationError(
+                'Проверьте год, он должен быть в пределах '
+                f'{thisyear - 500} - {thisyear}')
         return value
 
     def create(self, validated_data):

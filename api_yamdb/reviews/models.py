@@ -36,7 +36,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField('Название', max_length=200)
-    year = models.CharField('Год произведения', max_length=4)
+    year = models.IntegerField('Год произведения')
     description = models.TextField('Описание')
     category = models.ForeignKey(
         Category,
