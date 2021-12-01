@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 
 class SignUpView(APIView):
     
@@ -48,4 +49,9 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('username',)
-    
+
+    def retrieve(self, request, pk=None):
+        queryset = User.objects.all()
+        user = get_object_or_404(queryset, username=pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)

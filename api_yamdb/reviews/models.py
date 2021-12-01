@@ -13,16 +13,16 @@ class User(AbstractUser):
         'Биография',
         blank=True,
     )
-    USER_ROLES = (
-      (1, 'user'),
-      (2, 'moderator'),
-      (3, 'admin'),
-  )
+    USER_ROLES = [
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin'),
+    ]
     role = models.CharField(
         max_length=150,
         blank=False,
         choices=USER_ROLES,
-        default=USER_ROLES[1],
+        default='user',
     )
     confirmation_code = models.CharField(
         max_length=200,
