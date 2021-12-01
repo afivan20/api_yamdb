@@ -1,4 +1,4 @@
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from .serializers import SignUpSerializer, UserTokenSerializer, UserSerializer
 from reviews.models import User
 from uuid import uuid1
@@ -8,9 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-
-
-
+from django_filters.rest_framework import DjangoFilterBackend
 
 class SignUpView(APIView):
     
@@ -30,7 +28,6 @@ class SignUpView(APIView):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 class TokenView(APIView):
     
     def post(self, request):
@@ -49,4 +46,6 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    #pagination_class = ...
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('username',)
+    
