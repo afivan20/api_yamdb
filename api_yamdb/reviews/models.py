@@ -12,7 +12,7 @@ class User(AbstractUser):
         'Биография',
         blank=True,
     )
-    # role = models.TextField()
+    role = models.TextField(default='user')
 
     def __str__(self):
         return self.username

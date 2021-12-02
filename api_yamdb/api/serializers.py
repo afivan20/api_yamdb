@@ -4,7 +4,7 @@ import datetime as dt
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    lookup_field = 'slug'
+    # lookup_field = 'slug'
 
     class Meta:
         model = Category
@@ -12,7 +12,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    lookup_field = 'slug'
+    # lookup_field = 'slug'
 
     class Meta:
         model = Genre
@@ -28,7 +28,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
+        fields = ('name', 'year', 'description', 'category', 'genre')
 
     def validate_year(self, value):
         thisyear = dt.date.today().year
