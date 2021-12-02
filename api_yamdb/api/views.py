@@ -63,7 +63,7 @@ class UserViewSet(viewsets.ModelViewSet):
                                     data=request.data,
                                     partial=True)
 
-        #  сделать проверку на админа, а для user только GET
+        #  сделать проверку на админа,
         # if not (request.user.is_admin or request.user.is_superuser):
         #   no accsess to patch Role update_fields=['bio', 'first_name', 'last_name']
         #################
