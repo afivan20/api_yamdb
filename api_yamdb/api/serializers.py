@@ -2,6 +2,8 @@ from rest_framework import serializers, exceptions
 from reviews.models import User
 
 
+
+
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField(required=True)
@@ -10,6 +12,11 @@ class SignUpSerializer(serializers.Serializer):
         if data['username'] == 'me':
             raise serializers.ValidationError('Пользователь с таким именем '
                                               'не допустим. Пожалуйста выберите другое имя.')
+            
+        email = data['email']
+        username = data['username']
+        if User.objects.filter(email=email).exists() or User.objects.filter(username=username).exists():
+            raise serializers.ValidationError('Такой username или email уже существуют.')
         return data
 
 
