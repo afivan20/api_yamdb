@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdmin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 
 
 class SignUpView(APIView):
@@ -51,6 +52,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('username',)
     lookup_field = 'username'
+    pagination_class = PageNumberPagination
 
     @action(
         detail=False, methods=['PATCH', 'GET'],
