@@ -1,5 +1,7 @@
 from rest_framework import serializers, exceptions
 from reviews.models import User
+from reviews.models import Category, Genre, Title, GenreTitle
+import datetime as dt
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -31,3 +33,51 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role',)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    # lookup_field = 'slug'
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    # lookup_field = 'slug'
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True, required=False,)
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        required=False,
+        slug_field='name')
+
+    class Meta:
+        model = Title
+        fields = ('name', 'year', 'description', 'category', 'genre')
+
+    def validate_year(self, value):
+        thisyear = dt.date.today().year
+        if not (thisyear - 500 < int(value) <= thisyear):
+            raise serializers.ValidationError(
+                'Проверьте год, он должен быть в пределах '
+                f'{thisyear - 500} - {thisyear}')
+        return value
+
+    def create(self, validated_data):
+        if 'genre' not in self.initial_data:
+            title = Title.objects.create(**validated_data)
+            return title
+        genres = validated_data.pop('genre')
+        title = Title.objects.create(**validated_data)
+        for genre in genres:
+            current_genre, status = Genre.objects.get_or_create(**genre)
+            GenreTitle.objects.create(
+                genre=current_genre, title=title)
+        return title
