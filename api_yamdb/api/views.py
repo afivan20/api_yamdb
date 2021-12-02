@@ -21,7 +21,11 @@ class SignUpView(APIView):
         email = serializer.data['email']
         username = serializer.data['username']
         secret = str(uuid1())
-        User.objects.create(username=username, email=email, confirmation_code=secret)
+        User.objects.create(
+            username=username,
+            email=email,
+            confirmation_code=secret
+        )
         send_mail(
             'Confirmation code',
             f'Используйте этот код для входа в учетную запись - {secret}',
@@ -63,7 +67,7 @@ class UserViewSet(viewsets.ModelViewSet):
                                     data=request.data,
                                     partial=True)
 
-        if request.user.is_admin or request.user.is_moderator:   
+        if request.user.is_admin or request.user.is_moderator:
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
