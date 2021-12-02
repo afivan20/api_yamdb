@@ -8,11 +8,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdmin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 
+
 class SignUpView(APIView):
-    
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -21,16 +22,16 @@ class SignUpView(APIView):
         secret = str(uuid1())
         User.objects.create(username=username, email=email, confirmation_code=secret)
         send_mail(
-            'Ваш код подтверждения',
-            secret,
+            'Confirmation code',
+            f'Используйте этот код для входа в учетную запись - {secret}',
             'admin@yamdb.com',
             [email],
             fail_silently=False,
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class TokenView(APIView):
-    
     def post(self, request):
         serializer = UserTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -46,12 +47,24 @@ class TokenView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated, IsAdmin)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('username',)
+    lookup_field = 'username'
 
-    def retrieve(self, request, pk=None):
-        queryset = User.objects.all()
-        user = get_object_or_404(queryset, username=pk)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+    @action(
+        detail=False, methods=['PATCH', 'GET'],
+        permission_classes=(IsAuthenticated,)
+    )
+    def me(self, request):
+        serializer = UserSerializer(request.user,
+                                    data=request.data,
+                                    partial=True)
+
+        #  сделать проверку на админа, а для user только GET
+        # if not (request.user.is_admin or request.user.is_superuser):
+        #   no accsess to patch Role update_fields=['bio', 'first_name', 'last_name']
+        #################
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)

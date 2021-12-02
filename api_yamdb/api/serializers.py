@@ -7,13 +7,11 @@ class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
 
     def validate(self, data):
-        if User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError('Пользователь с таким email уже '
-                                              'существует')
-        elif data['username'] == 'me':
+        if data['username'] == 'me':
             raise serializers.ValidationError('Пользователь с таким именем '
-                                              'не допустим')
+                                              'не допустим. Пожалуйста выберите другое имя.')
         return data
+
 
 class UserTokenSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
@@ -28,11 +26,8 @@ class UserTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError('Неправильный код')
         return data
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role',)
-        
-        
-
-
