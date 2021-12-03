@@ -17,8 +17,10 @@ from .serializers import CategorySerializer
 from .serializers import GenreSerializer
 from .serializers import TitleSerializer
 # from .permissions import IsAuthorOrReadOnlyPermission
-# from .permissions import IsAdminUserOrReadOnly
+from .permissions import IsAdminUserOrReadOnly, IsAdminUserOrReadOnlyMy
+# from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly
 from .permissions import IsAll
+from rest_framework.decorators import api_view
 
 
 class SignUpView(APIView):
@@ -28,7 +30,11 @@ class SignUpView(APIView):
         email = serializer.data['email']
         username = serializer.data['username']
         secret = str(uuid1())
-        User.objects.create(username=username, email=email, confirmation_code=secret)
+        User.objects.create(
+            username=username,
+            email=email,
+            confirmation_code=secret
+        )
         send_mail(
             'Confirmation code',
             f'Используйте этот код для входа в учетную запись - {secret}',
@@ -70,27 +76,35 @@ class UserViewSet(viewsets.ModelViewSet):
                                     data=request.data,
                                     partial=True)
 
-        #  сделать проверку на админа,
-        # if not (request.user.is_admin or request.user.is_superuser):
-        #   no accsess to patch Role update_fields=['bio', 'first_name', 'last_name']
-        #################
+        if request.user.is_admin or request.user.is_moderator:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(role='user')
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    lookup_field = 'slug'
-    permission_classes = (IsAll,)
-    queryset = Category.objects.all()
+    http_method_names = ['get', 'post']
+    # lookup_field = 'slug'
+    # permission_classes = (IsAdminUserOrReadOnly,)
+    permission_classes = (IsAdminUserOrReadOnlyMy,)
+    queryset = Category.objects.all().order_by('id')
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('name',)
     serializer_class = CategorySerializer
     pagination_class = PageNumberPagination
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    lookup_field = 'slug'
-    permission_classes = (IsAll,)
-    queryset = Genre.objects.all()
+    http_method_names = ['get', 'post']
+    # lookup_field = 'slug'
+    # permission_classes = (IsAdminUserOrReadOnly,)
+    permission_classes = (IsAdminUserOrReadOnlyMy,)
+    queryset = Genre.objects.all().order_by('id')
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('name',)
     serializer_class = GenreSerializer
     pagination_class = PageNumberPagination
 
@@ -104,3 +118,29 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_fields = ('category__name', 'genre', 'name', 'year',)
     ordering_fields = ('name', 'year')
     pagination_class = PageNumberPagination
+
+
+@api_view(['GET', 'DELETE', ])
+def api_categories_del(request, slug):
+    category = Category.objects.get(slug=slug)
+    if not request.user.is_admin:
+        return Response(
+            {'detail': 'You do not have permission to perform this action.'},
+            status=status.HTTP_403_FORBIDDEN)
+    if request.method == 'DELETE':
+        category.delete()
+        return Response(
+            {'text': 'объект удален'}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['DELETE', ])
+def api_genre_del(request, slug):
+    genre = Genre.objects.get(slug=slug)
+    if not request.user.role:
+        return Response(
+            {'detail': 'You do not have permission to perform this action.'},
+            status=status.HTTP_403_FORBIDDEN)
+    if request.method == 'DELETE':
+        genre.delete()
+        return Response({'text': 'объект удален'},
+                        status=status.HTTP_204_NO_CONTENT)
