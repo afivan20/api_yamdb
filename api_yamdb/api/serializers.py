@@ -65,20 +65,19 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
 
-class GenreSerializer2(serializers.ModelSerializer):
-    # lookup_field = 'slug'
-
-    class Meta:
-        model = Genre
-        fields = ('slug')
-
-
 class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer2(many=True, required=False,)
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        required=False,
+        many=True,
+        slug_field='slug'
+    )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         required=False,
-        slug_field='name')
+        slug_field='slug',
+        read_only=True
+    )
 
     class Meta:
         model = Title
@@ -92,14 +91,16 @@ class TitleSerializer(serializers.ModelSerializer):
                 f'{thisyear - 500} - {thisyear}')
         return value
 
-    def create(self, validated_data):
-        if 'genre' not in self.initial_data:
-            title = Title.objects.create(**validated_data)
-            return title
-        genres = validated_data.pop('genre')
-        title = Title.objects.create(**validated_data)
-        for genre in genres:
-            current_genre, status = Genre.objects.get_or_create(**genre)
-            GenreTitle.objects.create(
-                genre=current_genre, title=title)
-        return title
+    # def create(self, validated_data):
+    #     print(validated_data)
+    #     if 'genre' not in self.initial_data:
+    #         title = Title.objects.create(**validated_data)
+    #         return title
+    #     genres = validated_data.pop('genre')
+    #     print(genres)
+    #     title = Title.objects.create(**validated_data)
+    #     for genre in genres:
+    #         current_genre, status = Genre.objects.get_or_create(**genre)
+    #         GenreTitle.objects.create(
+    #             genre=current_genre, title=title)
+    #     return title

@@ -17,7 +17,7 @@ from reviews.models import Category, Genre, Title
 from .serializers import CategorySerializer
 from .serializers import GenreSerializer
 from .serializers import TitleSerializer
-from .permissions import IsAdminUserOrReadOnlyMy, IsAdmin
+from .permissions import IsAdminUserOrReadOnlyGenCat, IsAdmin
 from .permissions import IsAll
 
 
@@ -86,7 +86,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(mixins.CreateModelMixin,
                       mixins.ListModelMixin, viewsets.GenericViewSet):
     http_method_names = ['get', 'post']
-    permission_classes = (IsAdminUserOrReadOnlyMy,)
+    permission_classes = (IsAdminUserOrReadOnlyGenCat,)
     queryset = Category.objects.all().order_by('id')
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
@@ -97,7 +97,7 @@ class CategoryViewSet(mixins.CreateModelMixin,
 class GenreViewSet(mixins.CreateModelMixin,
                    mixins.ListModelMixin, viewsets.GenericViewSet):
     http_method_names = ['get', 'post']
-    permission_classes = (IsAdminUserOrReadOnlyMy,)
+    permission_classes = (IsAdminUserOrReadOnlyGenCat,)
     queryset = Genre.objects.all().order_by('id')
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
