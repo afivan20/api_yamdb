@@ -1,4 +1,5 @@
-from rest_framework import status, viewsets, filters
+from rest_framework import generics, status, viewsets
+from rest_framework import filters, mixins, viewsets
 from .serializers import SignUpSerializer, UserTokenSerializer, UserSerializer
 from reviews.models import User
 from uuid import uuid1
@@ -16,11 +17,8 @@ from reviews.models import Category, Genre, Title
 from .serializers import CategorySerializer
 from .serializers import GenreSerializer
 from .serializers import TitleSerializer
-# from .permissions import IsAuthorOrReadOnlyPermission
-from .permissions import IsAdminUserOrReadOnly, IsAdminUserOrReadOnlyMy
-# from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly
+from .permissions import IsAdminUserOrReadOnlyMy, IsAdmin
 from .permissions import IsAll
-from rest_framework.decorators import api_view
 
 
 class SignUpView(APIView):
@@ -85,10 +83,9 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin,
+                      mixins.ListModelMixin, viewsets.GenericViewSet):
     http_method_names = ['get', 'post']
-    # lookup_field = 'slug'
-    # permission_classes = (IsAdminUserOrReadOnly,)
     permission_classes = (IsAdminUserOrReadOnlyMy,)
     queryset = Category.objects.all().order_by('id')
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
@@ -97,10 +94,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(mixins.CreateModelMixin,
+                   mixins.ListModelMixin, viewsets.GenericViewSet):
     http_method_names = ['get', 'post']
-    # lookup_field = 'slug'
-    # permission_classes = (IsAdminUserOrReadOnly,)
     permission_classes = (IsAdminUserOrReadOnlyMy,)
     queryset = Genre.objects.all().order_by('id')
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
@@ -120,27 +116,15 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
 
-@api_view(['GET', 'DELETE', ])
-def api_categories_del(request, slug):
-    category = Category.objects.get(slug=slug)
-    if not request.user.is_admin:
-        return Response(
-            {'detail': 'You do not have permission to perform this action.'},
-            status=status.HTTP_403_FORBIDDEN)
-    if request.method == 'DELETE':
-        category.delete()
-        return Response(
-            {'text': 'объект удален'}, status=status.HTTP_204_NO_CONTENT)
+class CategoriesDelete(generics.DestroyAPIView):
+    lookup_field = 'slug'
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    permission_classes = (IsAdmin,)
 
 
-@api_view(['DELETE', ])
-def api_genre_del(request, slug):
-    genre = Genre.objects.get(slug=slug)
-    if not request.user.role:
-        return Response(
-            {'detail': 'You do not have permission to perform this action.'},
-            status=status.HTTP_403_FORBIDDEN)
-    if request.method == 'DELETE':
-        genre.delete()
-        return Response({'text': 'объект удален'},
-                        status=status.HTTP_204_NO_CONTENT)
+class GenreDelete(generics.DestroyAPIView):
+    lookup_field = 'slug'
+    serializer_class = GenreSerializer
+    queryset = Genre.objects.all()
+    permission_classes = (IsAdmin,)

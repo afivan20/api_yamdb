@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from rest_framework.permissions import IsAdminUser, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework import permissions
 
 
@@ -9,24 +9,18 @@ class IsAdmin(BasePermission):
             return request.user.is_admin
 
 
-class IsAdminUserOrReadOnlyMy(IsAdminUser):
+class IsAdminUserOrReadOnlyMy(BasePermission):
 
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
-        # if request.user == 'AnonymousUser':
-            # return False
         if request.user.is_authenticated:
             if request.method == 'POST':
                 return request.user.is_admin
-            # return True
         return False
-        # if request.user.is_authenticated:
-        #     if request.method == 'POST' and request.user.is_admin:
-        #         return True
 
 
-class IsAdminUserOrReadOnly(IsAdminUser):
+class IsAdminUserOrReadOnly(BasePermission):
 
     def has_permission(self, request, view):
         is_admin = super(
