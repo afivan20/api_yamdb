@@ -58,11 +58,28 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    # lookup_field = 'slug'
+    lookup_field = 'slug'
 
     class Meta:
         model = Genre
         fields = ('name', 'slug')
+
+
+class TitleSerializerView(serializers.ModelSerializer):
+    genre = GenreSerializer(
+        required=False,
+        many=True,
+    )
+    category = CategorySerializer(
+        # queryset=Category.objects.all(),
+        required=False,
+        # slug_field='slug',
+        # read_only=True
+    )
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -76,12 +93,12 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(),
         required=False,
         slug_field='slug',
-        read_only=True
+        # read_only=True
     )
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'category', 'genre')
+        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
 
     def validate_year(self, value):
         thisyear = dt.date.today().year

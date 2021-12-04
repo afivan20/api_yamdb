@@ -12,6 +12,7 @@ router.register('categories', CategoryViewSet, basename='categories')
 router.register('genres', GenreViewSet, basename='genres')
 router.register('titles', TitleViewSet, basename='titles')
 
+
 urlpatterns = [
     path('v1/auth/signup/', SignUpView.as_view()),
     path('v1/auth/token/', TokenView.as_view()),

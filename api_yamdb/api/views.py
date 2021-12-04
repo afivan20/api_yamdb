@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .permissions import IsAdmin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
@@ -16,7 +16,7 @@ from rest_framework.pagination import PageNumberPagination
 from reviews.models import Category, Genre, Title
 from .serializers import CategorySerializer
 from .serializers import GenreSerializer
-from .serializers import TitleSerializer
+from .serializers import TitleSerializer, TitleSerializerView
 from .permissions import IsAdminUserOrReadOnlyGenCat, IsAdmin
 from .permissions import IsAll
 
@@ -106,8 +106,16 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAll,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Title.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return TitleSerializerView
+        if self.action == 'retrieve':
+            return TitleSerializerView
+        return TitleSerializer
+
     serializer_class = TitleSerializer
     pagination_class = None
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
