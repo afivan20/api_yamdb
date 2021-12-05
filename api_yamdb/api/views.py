@@ -109,7 +109,7 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    # permission_classes = (IsAdminUserOrReadOnlyGenCat,)
+    permission_classes = (IsAdminUserOrReadOnlyGenCat,)
     queryset = Title.objects.all()
 
     def get_serializer_class(self):
@@ -144,10 +144,10 @@ class GenreDelete(generics.DestroyAPIView):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    # permission_classes = (IsAuthorOrReadOnlyPermission,)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    # permission_classes = (IsAuthorOrReadOnlyPermission,)
