@@ -96,7 +96,7 @@ class Review(models.Model):
         (1, 1), (2, 2), (3, 3), (4, 4),
         (5, 5), (6, 6), (7, 7), (8, 8),
         (9, 9), (10, 10))
-    text = models.TextField('Описание', blank=True)
+    text = models.TextField('Описание')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
     score = models.IntegerField('Оценка', choices=SCORES)
@@ -104,9 +104,15 @@ class Review(models.Model):
     title = models.ForeignKey(
         Title, related_name='reviews', on_delete=models.CASCADE)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'], name='unique_title_author')
+        ]
+
 
 class Comment(models.Model):
-    text = models.TextField('Описание', blank=True)
+    text = models.TextField('Описание')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)

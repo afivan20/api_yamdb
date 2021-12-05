@@ -110,6 +110,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
         fields = ('id', 'text', 'author', 'score', 'pub_date')
 
+    # def create(self, validated_data):
+    #     review = Review.objects.create()
+
+    #     for item in validated_data['authors']:
+    #         author = Author.objects.get(author_id=item['author_id'])
+    #         review.authors.add(author)
+
+    #     return review
+
+
 class CommentSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 

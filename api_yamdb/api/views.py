@@ -145,6 +145,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
+    pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
@@ -161,6 +162,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
+    pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
