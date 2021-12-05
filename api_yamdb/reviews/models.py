@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class User(AbstractUser):
@@ -89,3 +90,11 @@ class GenreTitle(models.Model):
 
     def __str__(self):
         return f'{self.title.name} {self.genre.name}'
+
+
+class Review(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name='review')
+    text = models.TextField()
+    score = models.IntegerField('Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review')
+    pub_date = models.DateTimeField('Дата добавления', auto_now_add=True, db_index=True)
