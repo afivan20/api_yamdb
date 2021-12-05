@@ -4,6 +4,8 @@ from reviews.models import Category, Genre, Title
 import datetime as dt
 from reviews.models import Review, Comment
 from rest_framework.relations import SlugRelatedField
+from django.db.models import Avg
+
 
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
@@ -78,10 +80,16 @@ class TitleSerializer(serializers.ModelSerializer):
         required=False,
         slug_field='slug',
     )
+    # rating = Review.objects.all().aggregate(Avg('score'))
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, obj):
+        rating = Review.objects.all().aggregate(Avg('score'))
+        return rating["score__avg"]
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
+        fields = ('id', 'name', 'year', 'rating', 'description', 'category', 'genre')
 
     def validate_year(self, value):
         thisyear = dt.date.today().year
