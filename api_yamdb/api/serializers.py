@@ -1,6 +1,6 @@
 from rest_framework import serializers, exceptions
 from reviews.models import User
-from reviews.models import Category, Genre, Title, GenreTitle
+from reviews.models import Category, Genre, Title
 import datetime as dt
 
 
@@ -50,7 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    # lookup_field = 'slug'
+    lookup_field = 'slug'
 
     class Meta:
         model = Category
@@ -58,7 +58,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    # lookup_field = 'slug'
+    lookup_field = 'slug'
 
     class Meta:
         model = Genre
@@ -66,15 +66,21 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True, required=False,)
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        required=False,
+        many=True,
+        slug_field='slug'
+    )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         required=False,
-        slug_field='name')
+        slug_field='slug',
+    )
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'category', 'genre')
+        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
 
     def validate_year(self, value):
         thisyear = dt.date.today().year
@@ -84,15 +90,12 @@ class TitleSerializer(serializers.ModelSerializer):
                 f'{thisyear - 500} - {thisyear}')
         return value
 
-    def create(self, validated_data):
-        if 'genre' not in self.initial_data:
-            title = Title.objects.create(**validated_data)
-            return title
-        genres = validated_data.pop('genre')
-        title = Title.objects.create(**validated_data)
-        for genre in genres:
-            current_genre, status = Genre.objects.get_or_create(**genre)
-            GenreTitle.objects.create(
-                genre=current_genre, title=title)
-        return title
-        
+
+class TitleSerializerView(TitleSerializer):
+    genre = GenreSerializer(
+        required=False,
+        many=True,
+    )
+    category = CategorySerializer(
+        required=False,
+    )
