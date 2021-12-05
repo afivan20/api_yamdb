@@ -1,7 +1,8 @@
-from rest_framework import status, viewsets, filters
+from django.db.models import fields
+from rest_framework import serializers, status, viewsets, filters
 from rest_framework import generics, mixins
 from .serializers import SignUpSerializer, UserTokenSerializer, UserSerializer
-from reviews.models import User
+from reviews.models import User, Review
 from uuid import uuid1
 from django.core.mail import send_mail
 from rest_framework.response import Response
@@ -136,3 +137,12 @@ class GenreDelete(generics.DestroyAPIView):
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
     permission_classes = (IsAdmin,)
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Review
+        fields='__all__'
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
