@@ -21,6 +21,7 @@ from .permissions import IsAdminUserOrReadOnlyGenCat, IsAdmin
 from .filters import GenreFilter
 from .serializers import ReviewSerializer, CommentSerializer
 from reviews.models import Comment, Review
+from .permissions import IsAuthorOrReadOnlyPermission
 
 
 class SignUpView(APIView):
@@ -143,8 +144,10 @@ class GenreDelete(generics.DestroyAPIView):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
