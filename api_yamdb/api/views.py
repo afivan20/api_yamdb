@@ -21,7 +21,7 @@ from .permissions import IsAdminUserOrReadOnlyGenCat, IsAdmin
 from .filters import GenreFilter
 from .serializers import ReviewSerializer, CommentSerializer
 from reviews.models import Comment, Review
-from .permissions import IsAuthorOrReadOnlyPermission
+from .permissions import IsAdminModeratorAuthorOrReadOnly
 
 
 class SignUpView(APIView):
@@ -144,7 +144,7 @@ class GenreDelete(generics.DestroyAPIView):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    # permission_classes = (IsAuthorOrReadOnlyPermission,)
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
@@ -160,7 +160,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    # permission_classes = (IsAuthorOrReadOnlyPermission,)
+    permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
