@@ -103,16 +103,13 @@ class TitleSerializerView(TitleSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    pass
 
     class Meta:
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
 
 class CommentSerializer(serializers.ModelSerializer):
-    pass
 
     class Meta:
         model = Comment
         fields = ('id', 'text', 'author', 'pub_date')
-    

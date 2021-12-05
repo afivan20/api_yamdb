@@ -20,6 +20,7 @@ from .serializers import TitleSerializer, TitleSerializerView
 from .permissions import IsAdminUserOrReadOnlyGenCat, IsAdmin
 from .filters import GenreFilter
 from .serializers import ReviewSerializer, CommentSerializer
+from reviews.models import Comment, Review
 
 
 class SignUpView(APIView):
@@ -107,7 +108,7 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminUserOrReadOnlyGenCat,)
+    # permission_classes = (IsAdminUserOrReadOnlyGenCat,)
     queryset = Title.objects.all()
 
     def get_serializer_class(self):
@@ -140,8 +141,10 @@ class GenreDelete(generics.DestroyAPIView):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
