@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 from reviews.models import User
 from reviews.models import Category, Genre, Title
 import datetime as dt
-
+from reviews.models import Review, Comment
 
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
@@ -99,3 +99,11 @@ class TitleSerializerView(TitleSerializer):
     category = CategorySerializer(
         required=False,
     )
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    pass
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    pass

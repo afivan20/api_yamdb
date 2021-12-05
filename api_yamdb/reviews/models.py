@@ -89,3 +89,19 @@ class GenreTitle(models.Model):
 
     def __str__(self):
         return f'{self.title.name} {self.genre.name}'
+
+
+class Review(models.Model):
+    SCORES = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10))
+    text = models.TextField('Описание', blank=True)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviews')
+    score = models.IntegerField('Оценка', choices=SCORES)
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+
+
+class Comment(models.Model):
+    text = models.TextField('Описание', blank=True)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='comments')
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
