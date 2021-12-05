@@ -15,7 +15,10 @@ class IsAdminUserOrReadOnlyGenCat(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         if request.user.is_authenticated:
-            if request.method == 'POST':
+            if (request.method == 'POST'
+                    or request.method == 'PUT'
+                    or request.method == 'PATCH'
+                    or request.method == 'DELETE'):
                 return request.user.is_admin
         return False
 

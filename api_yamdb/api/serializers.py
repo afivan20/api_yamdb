@@ -1,6 +1,6 @@
 from rest_framework import serializers, exceptions
 from reviews.models import User
-from reviews.models import Category, Genre, Title, GenreTitle
+from reviews.models import Category, Genre, Title  # GenreTitle
 import datetime as dt
 
 
@@ -65,23 +65,6 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
 
-class TitleSerializerView(serializers.ModelSerializer):
-    genre = GenreSerializer(
-        required=False,
-        many=True,
-    )
-    category = CategorySerializer(
-        # queryset=Category.objects.all(),
-        required=False,
-        # slug_field='slug',
-        # read_only=True
-    )
-
-    class Meta:
-        model = Title
-        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
-
-
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
@@ -93,7 +76,6 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(),
         required=False,
         slug_field='slug',
-        # read_only=True
     )
 
     class Meta:
@@ -107,6 +89,16 @@ class TitleSerializer(serializers.ModelSerializer):
                 'Проверьте год, он должен быть в пределах '
                 f'{thisyear - 500} - {thisyear}')
         return value
+
+
+class TitleSerializerView(TitleSerializer):
+    genre = GenreSerializer(
+        required=False,
+        many=True,
+    )
+    category = CategorySerializer(
+        required=False,
+    )
 
     # def create(self, validated_data):
     #     print(validated_data)

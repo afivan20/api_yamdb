@@ -19,5 +19,4 @@ urlpatterns = [
     path('v1/categories/<slug:slug>/', CategoriesDelete.as_view()),
     path('v1/genres/<slug:slug>/', GenreDelete.as_view()),
     path('v1/', include(router.urls)),
-
 ]

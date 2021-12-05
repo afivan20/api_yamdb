@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdmin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
@@ -18,7 +18,6 @@ from .serializers import CategorySerializer
 from .serializers import GenreSerializer
 from .serializers import TitleSerializer, TitleSerializerView
 from .permissions import IsAdminUserOrReadOnlyGenCat, IsAdmin
-from .permissions import IsAll
 
 
 class SignUpView(APIView):
@@ -106,20 +105,20 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminUserOrReadOnlyGenCat,)
     queryset = Title.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'list':
-            return TitleSerializerView
-        if self.action == 'retrieve':
-            return TitleSerializerView
-        return TitleSerializer
+        if (self.request.method == 'POST'
+                or self.request.method == 'PATCH'
+                or self.request.method == 'PUT'):
+            return TitleSerializer
+        return TitleSerializerView
 
     serializer_class = TitleSerializer
     pagination_class = None
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    filterset_fields = ('category__name', 'genre', 'name', 'year',)
+    filterset_fields = ('category__name', 'genre__slug', 'name', 'year',)
     ordering_fields = ('name', 'year')
     pagination_class = PageNumberPagination
 
