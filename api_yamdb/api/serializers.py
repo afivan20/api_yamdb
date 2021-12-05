@@ -80,7 +80,6 @@ class TitleSerializer(serializers.ModelSerializer):
         required=False,
         slug_field='slug',
     )
-    # rating = Review.objects.all().aggregate(Avg('score'))
     rating = serializers.SerializerMethodField()
 
     def get_rating(self, obj):
