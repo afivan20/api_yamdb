@@ -1,6 +1,6 @@
 from rest_framework import serializers, exceptions
 from reviews.models import User
-from reviews.models import Category, Genre, Title  # GenreTitle
+from reviews.models import Category, Genre, Title
 import datetime as dt
 
 
@@ -50,7 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    # lookup_field = 'slug'
+    lookup_field = 'slug'
 
     class Meta:
         model = Category
@@ -99,17 +99,3 @@ class TitleSerializerView(TitleSerializer):
     category = CategorySerializer(
         required=False,
     )
-
-    # def create(self, validated_data):
-    #     print(validated_data)
-    #     if 'genre' not in self.initial_data:
-    #         title = Title.objects.create(**validated_data)
-    #         return title
-    #     genres = validated_data.pop('genre')
-    #     print(genres)
-    #     title = Title.objects.create(**validated_data)
-    #     for genre in genres:
-    #         current_genre, status = Genre.objects.get_or_create(**genre)
-    #         GenreTitle.objects.create(
-    #             genre=current_genre, title=title)
-    #     return title

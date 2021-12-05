@@ -18,6 +18,7 @@ from .serializers import CategorySerializer
 from .serializers import GenreSerializer
 from .serializers import TitleSerializer, TitleSerializerView
 from .permissions import IsAdminUserOrReadOnlyGenCat, IsAdmin
+from .filters import GenreFilter
 
 
 class SignUpView(APIView):
@@ -118,7 +119,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     pagination_class = None
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    filterset_fields = ('category__name', 'genre__slug', 'name', 'year',)
+    filter_class = GenreFilter
     ordering_fields = ('name', 'year')
     pagination_class = PageNumberPagination
 
