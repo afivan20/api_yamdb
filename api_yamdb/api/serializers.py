@@ -4,6 +4,7 @@ from reviews.models import Category, Genre, Title
 import datetime as dt
 from reviews.models import Review, Comment
 
+
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField(required=True)
@@ -104,6 +105,14 @@ class TitleSerializerView(TitleSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     pass
 
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
 
 class CommentSerializer(serializers.ModelSerializer):
     pass
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
+    
