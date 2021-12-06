@@ -40,12 +40,6 @@ class IsAuthorOrReadOnlyPermission(BasePermission):
         return obj.author == request.user
 
 
-class IsAll(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return True
-
-
 class IsAdminModeratorAuthorOrReadOnly(BasePermission):
 
     def has_permission(self, request, view):

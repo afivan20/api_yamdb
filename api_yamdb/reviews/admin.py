@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import User, Category, Genre, Title
 from .models import Review, Comment
 
+
 class UserAdmin(admin.ModelAdmin):
     list_display = ('pk', 'username', 'email', 'role')
 
@@ -26,14 +27,14 @@ class TitleAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('pk', 'text', 'author', 'pub_date')
     search_fields = ('text',)
-    # list_filter = ('pk',)
     empty_value_display = '-пусто-'
+
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk', 'text', 'author', 'pub_date')
     search_fields = ('text',)
-    # list_filter = ('pk',)
     empty_value_display = '-пусто-'
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Category, CategoryAdmin)
