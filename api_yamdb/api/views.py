@@ -142,7 +142,13 @@ class GenreDelete(generics.DestroyAPIView):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
+    def get_queryset(self):
+        queryset = Review.objects.all()
+        print(queryset)
+        title_id = self.kwargs.get('title_id')
+        print(title_id)
+        queryset = queryset.filter(title_id=title_id)
+        return queryset
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
     pagination_class = PageNumberPagination

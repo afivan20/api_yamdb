@@ -5,7 +5,10 @@ import datetime as dt
 from reviews.models import Review, Comment
 from rest_framework.relations import SlugRelatedField
 from django.db.models import Avg
-
+from rest_framework.validators import UniqueTogetherValidator
+from django.shortcuts import get_object_or_404
+from django.db.models import Func
+import json
 
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
@@ -68,6 +71,11 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
 
+class Round(Func):
+    function = 'ROUND'
+    template = '%(function)s(%(expressions)s, 0)'
+
+
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
@@ -84,11 +92,16 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         rating = Review.objects.all().aggregate(Avg('score'))
-        return rating["score__avg"]
+        rating_value = rating["score__avg"]
+        # # rating_value = round(rating_value)
+        # json_obj = json.loads(rating_value)
+        return rating_value
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'rating', 'description', 'category', 'genre')
+        fields = (
+            'id', 'name', 'year', 'rating',
+            'description', 'category', 'genre')
 
     def validate_year(self, value):
         thisyear = dt.date.today().year
@@ -109,22 +122,37 @@ class TitleSerializerView(TitleSerializer):
     )
 
 
+class CurrentTitleDafault:
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        c_view = serializer_field.context['view']
+        title_id = c_view.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        return title
+
+    def __repr__(self):
+        return '%s()' % self.__class__.__name__
+
+
 class ReviewSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        slug_field='username',
+        read_only=True)
+    title = serializers.HiddenField(default=CurrentTitleDafault())
 
     class Meta:
         model = Review
         read_only_fields = ('author',)
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
 
-    # def create(self, validated_data):
-    #     review = Review.objects.create()
-
-    #     for item in validated_data['authors']:
-    #         author = Author.objects.get(author_id=item['author_id'])
-    #         review.authors.add(author)
-
-    #     return review
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('author', 'title')
+            ),
+        )
 
 
 class CommentSerializer(serializers.ModelSerializer):
