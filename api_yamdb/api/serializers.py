@@ -7,7 +7,6 @@ from rest_framework.relations import SlugRelatedField
 from django.db.models import Avg
 from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
-from django.db.models import Func
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -38,7 +37,7 @@ class UserTokenSerializer(serializers.Serializer):
         username = data['username']
         confirmation_code = data['confirmation_code']
         if not User.objects.filter(username=username).exists():
-            raise exceptions.NotFound('Пользователь не найден.')
+            raise exceptions.NotFound('Пользователь не найден')
         elif not User.objects.filter(
             confirmation_code=confirmation_code
         ).exists():
@@ -69,11 +68,6 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
-
-
-class Round(Func):
-    function = 'ROUND'
-    template = '%(function)s(%(expressions)s, 0)'
 
 
 class TitleSerializer(serializers.ModelSerializer):

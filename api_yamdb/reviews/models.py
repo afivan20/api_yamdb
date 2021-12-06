@@ -101,7 +101,10 @@ class Review(models.Model):
     text = models.TextField('Описание')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
-    score = models.IntegerField('Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
+    score = models.IntegerField(
+        'Оценка',
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     title = models.ForeignKey(
         Title, related_name='reviews', on_delete=models.CASCADE)
