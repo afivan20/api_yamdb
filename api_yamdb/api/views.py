@@ -120,7 +120,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializerView
 
     serializer_class = TitleSerializer
-    pagination_class = None
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = GenreFilter
     ordering_fields = ('name', 'year')
@@ -144,9 +143,7 @@ class GenreDelete(generics.DestroyAPIView):
 class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Review.objects.all()
-        print(queryset)
         title_id = self.kwargs.get('title_id')
-        print(title_id)
         queryset = queryset.filter(title_id=title_id)
         return queryset
     serializer_class = ReviewSerializer
