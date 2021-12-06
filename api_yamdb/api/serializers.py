@@ -8,7 +8,7 @@ from django.db.models import Avg
 from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 from django.db.models import Func
-import json
+
 
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
@@ -90,18 +90,15 @@ class TitleSerializer(serializers.ModelSerializer):
     )
     rating = serializers.SerializerMethodField()
 
-    def get_rating(self, obj):
-        rating = Review.objects.all().aggregate(Avg('score'))
-        rating_value = rating["score__avg"]
-        # # rating_value = round(rating_value)
-        # json_obj = json.loads(rating_value)
-        return rating_value
-
     class Meta:
         model = Title
         fields = (
             'id', 'name', 'year', 'rating',
             'description', 'category', 'genre')
+
+    def get_rating(self, obj):
+        rating = obj.reviews.all().aggregate(Avg('score'))['score__avg']
+        return rating
 
     def validate_year(self, value):
         thisyear = dt.date.today().year
