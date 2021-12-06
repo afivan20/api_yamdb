@@ -3,6 +3,10 @@ from reviews.models import User
 from reviews.models import Category, Genre, Title
 import datetime as dt
 from reviews.models import Review, Comment
+from rest_framework.relations import SlugRelatedField
+from django.db.models import Avg
+from rest_framework.validators import UniqueTogetherValidator
+from django.shortcuts import get_object_or_404
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -78,10 +82,17 @@ class TitleSerializer(serializers.ModelSerializer):
         required=False,
         slug_field='slug',
     )
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
+        fields = (
+            'id', 'name', 'year', 'rating',
+            'description', 'category', 'genre')
+
+    def get_rating(self, obj):
+        rating = obj.reviews.all().aggregate(Avg('score'))['score__avg']
+        return rating
 
     def validate_year(self, value):
         thisyear = dt.date.today().year
@@ -102,17 +113,43 @@ class TitleSerializerView(TitleSerializer):
     )
 
 
+class CurrentTitleDafault:
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        c_view = serializer_field.context['view']
+        title_id = c_view.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        return title
+
+    def __repr__(self):
+        return '%s()' % self.__class__.__name__
+
+
 class ReviewSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        slug_field='username',
+        read_only=True)
+    title = serializers.HiddenField(default=CurrentTitleDafault())
 
     class Meta:
         model = Review
-        # read_only_fields = ('author',)
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        read_only_fields = ('author',)
+        fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
+
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('author', 'title')
+            ),
+        )
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
         model = Comment
-        # read_only_fields = ('author',)
+        read_only_fields = ('author',)
         fields = ('id', 'text', 'author', 'pub_date')
