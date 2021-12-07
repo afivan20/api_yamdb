@@ -4,24 +4,31 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from .permissions import (
+from api.permissions import (
     IsAdminModeratorAuthorOrReadOnly,
     IsAdminUserOrReadOnlyGenCat,
     IsAdmin
 )
 from reviews.models import User, Category, Genre, Title, Comment, Review
-from .serializers import (
+from api.serializers import (
     SignUpSerializer, UserTokenSerializer, UserSerializer,
     CategorySerializer, GenreSerializer,
     TitleSerializer, TitleSerializerView,
     ReviewSerializer, CommentSerializer
 )
-from .filters import GenreFilter
+from api.filters import GenreFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from uuid import uuid1
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
+
+
+class HTTPMethod:
+    GET = 'get'
+    PATCH = 'patch'
+    DELETE = 'delete'
+    POST = 'post'
 
 
 class SignUpView(APIView):
@@ -69,7 +76,8 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     @action(
-        detail=False, methods=['GET', 'PATCH'],
+        detail=False,
+        methods=(HTTPMethod.GET, HTTPMethod.PATCH,),
         permission_classes=(IsAuthenticated,)
     )
     def me(self, request):
@@ -88,9 +96,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(mixins.CreateModelMixin,
                       mixins.ListModelMixin, viewsets.GenericViewSet):
-    http_method_names = ['get', 'post']
+    http_method_names = [HTTPMethod.GET, HTTPMethod.POST]
     permission_classes = (IsAdminUserOrReadOnlyGenCat,)
-    queryset = Category.objects.all().order_by('id')
+    queryset = Category.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
     serializer_class = CategorySerializer
@@ -99,9 +107,9 @@ class CategoryViewSet(mixins.CreateModelMixin,
 
 class GenreViewSet(mixins.CreateModelMixin,
                    mixins.ListModelMixin, viewsets.GenericViewSet):
-    http_method_names = ['get', 'post']
+    http_method_names = [HTTPMethod.GET, HTTPMethod.POST]
     permission_classes = (IsAdminUserOrReadOnlyGenCat,)
-    queryset = Genre.objects.all().order_by('id')
+    queryset = Genre.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
     serializer_class = GenreSerializer
@@ -111,6 +119,10 @@ class GenreViewSet(mixins.CreateModelMixin,
 class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminUserOrReadOnlyGenCat,)
     queryset = Title.objects.all()
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filterset_class = GenreFilter
+    ordering_fields = ('name', 'year')
+    pagination_class = PageNumberPagination
 
     def get_serializer_class(self):
         if (self.request.method == 'POST'
@@ -118,12 +130,6 @@ class TitleViewSet(viewsets.ModelViewSet):
                 or self.request.method == 'PUT'):
             return TitleSerializer
         return TitleSerializerView
-
-    serializer_class = TitleSerializer
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    filterset_class = GenreFilter
-    ordering_fields = ('name', 'year')
-    pagination_class = PageNumberPagination
 
 
 class CategoriesDelete(generics.DestroyAPIView):

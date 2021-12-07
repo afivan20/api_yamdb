@@ -1,9 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+# from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
+    USER_ROLES = [
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin'),
+    ]
     username = models.SlugField(
         'Имя пользователя',
         max_length=150,
@@ -17,20 +23,30 @@ class User(AbstractUser):
         'Биография',
         blank=True,
     )
-    USER_ROLES = [
-        ('user', 'user'),
-        ('moderator', 'moderator'),
-        ('admin', 'admin'),
-    ]
+    confirmation_code = models.CharField(
+        max_length=200,
+    )
     role = models.CharField(
         max_length=150,
         blank=False,
         choices=USER_ROLES,
         default='user',
     )
-    confirmation_code = models.CharField(
-        max_length=200,
-    )
+    # class UserRoles(models.TextChoices):
+    #     USER = 'USER', _('user')
+    #     ADMIN = 'ADMIN', _('admin')
+    #     MODERATOR = 'MODERATOR', _('moderator')
+    # role = models.CharField(
+    #     max_length=150,
+    #     blank=False,
+    #     choices=UserRoles.choices,
+    #     default=UserRoles.USER,)
+    # def is_upperclass(self):
+    #     return self.role in {
+    #         self.UserRoles.USER,
+    #         self.UserRoles.MODERATOR,
+    #         self.UserRoles.ADMIN,
+    #     }
 
     @property
     def is_admin(self):
@@ -42,18 +58,23 @@ class User(AbstractUser):
         if self.role == 'moderator' or self.is_superuser:
             return True
 
-    def __str__(self):
-        return self.username
-
     class Meta:
         ordering = (
             'username',
         )
 
+    def __str__(self):
+        return self.username
+
 
 class Category(models.Model):
     name = models.CharField('Название категории', max_length=200)
     slug = models.SlugField('Идентификатор категории', unique=True)
+
+    class Meta:
+        ordering = (
+            'pk',
+        )
 
     def __str__(self):
         return self.name[:15]
@@ -62,6 +83,11 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField('Название жанра', max_length=200)
     slug = models.SlugField('Идентификатор жанра', unique=True)
+
+    class Meta:
+        ordering = (
+            'pk',
+        )
 
     def __str__(self):
         return self.name[:15]
@@ -80,13 +106,13 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(Genre, through='GenreTitle')
 
-    def __str__(self):
-        return self.name[:15]
-
     class Meta:
         ordering = (
             'pk',
         )
+
+    def __str__(self):
+        return self.name[:15]
 
 
 class GenreTitle(models.Model):

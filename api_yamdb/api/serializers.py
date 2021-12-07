@@ -16,12 +16,14 @@ class SignUpSerializer(serializers.ModelSerializer):
                                               'не допустим. Пожалуйста '
                                               'выберите другое имя.')
         return data
+
     class Meta:
         model = User
         fields = (
             'username', 'email', 'first_name',
             'last_name', 'bio', 'role',
         )
+
 
 class UserTokenSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
@@ -117,7 +119,7 @@ class CurrentTitleDafault:
         return title
 
     def __repr__(self):
-        return '%s()' % self.__class__.__name__
+        return f'{self.__class__.__name__}()'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
