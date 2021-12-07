@@ -1,29 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-# from django.utils.translation import gettext_lazy as _
-# class UserRoles(models.TextChoices):
-    #     USER = 'USER', _('user')
-    #     ADMIN = 'ADMIN', _('admin')
-    #     MODERATOR = 'MODERATOR', _('moderator')
-    # role = models.CharField(
-    #     max_length=150,
-    #     blank=False,
-    #     choices=UserRoles.choices,
-    #     default=UserRoles.USER,)
-    # def is_upperclass(self):
-    #     return self.role in {
-    #         self.UserRoles.USER,
-    #         self.UserRoles.MODERATOR,
-    #         self.UserRoles.ADMIN,
-    #     }
+from django.utils.translation import gettext_lazy as _
+
 
 class User(AbstractUser):
-    USER_ROLES = [
-        ('user', 'user'),
-        ('moderator', 'moderator'),
-        ('admin', 'admin'),
-    ]
+    class UserRoles(models.TextChoices):
+        USER = 'user', _('user')
+        ADMIN = 'admin', _('admin')
+        MODERATOR = 'moderator', _('moderator')
+
     username = models.SlugField(
         'Имя пользователя',
         help_text='Имя пользователя',
@@ -64,19 +50,18 @@ class User(AbstractUser):
         help_text='Роль пользователя',
         max_length=150,
         blank=False,
-        choices=USER_ROLES,
-        default='user',
+        choices=UserRoles.choices,
+        default=UserRoles.USER,
     )
-    
 
     @property
     def is_admin(self):
-        if self.role == 'admin' or self.is_superuser:
+        if self.role == self.UserRoles.ADMIN or self.is_superuser:
             return True
 
     @property
     def is_moderator(self):
-        if self.role == 'moderator' or self.is_superuser:
+        if self.role == self.UserRoles.MODERATOR or self.is_superuser:
             return True
 
     class Meta:
