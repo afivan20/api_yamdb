@@ -110,7 +110,7 @@ class Genre(models.Model):
     )
 
     class Meta:
-        verbose_name = "Жанр"
+        verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
         ordering = (
             'pk',
@@ -182,7 +182,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField(
+    score = models.SmallIntegerField(
         'Оценка',
         help_text='Оценка обзора',
         validators=[MinValueValidator(1), MaxValueValidator(10)]
@@ -210,6 +210,9 @@ class Review(models.Model):
         ordering = (
             'pk',
         )
+
+    def __str__(self):
+        return self.text[:15]
 
 
 class Comment(models.Model):
@@ -243,3 +246,6 @@ class Comment(models.Model):
         ordering = (
             'pk',
         )
+
+    def __str__(self):
+        return self.text[:15]

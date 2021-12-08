@@ -61,7 +61,7 @@ class TokenView(APIView):
         user = get_object_or_404(User, username=username)
         refresh = RefreshToken.for_user(user)
         return Response(
-            {"access": str(refresh.access_token)},
+            {'access': str(refresh.access_token)},
             status=status.HTTP_200_OK,
         )
 
@@ -96,7 +96,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(mixins.CreateModelMixin,
                       mixins.ListModelMixin, viewsets.GenericViewSet):
-    http_method_names = [HTTPMethod.GET, HTTPMethod.POST]
+    http_method_names = (HTTPMethod.GET, HTTPMethod.POST,)
     permission_classes = (IsAdminUserOrReadOnlyGenCat,)
     queryset = Category.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
@@ -170,9 +170,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Comment.objects.all()
-        print(queryset)
         review_id = self.kwargs.get('review_id')
-        print(review_id)
         queryset = queryset.filter(review_id=review_id)
         return queryset
     serializer_class = CommentSerializer
