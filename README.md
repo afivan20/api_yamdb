@@ -66,22 +66,25 @@ http://127.0.0.1:8000/api/v1/auth/token/
 
 ### Некоторые примеры запросов к API.
 Доступные энд-поинты:
-GET-запрос на эндпоинты:
+GET-запросы
 ```
-http://127.0.0.1:8000/api/v1/users/
-```
-```
-http://127.0.0.1:8000/api/v1/titles/
+/api/v1/users/
 ```
 ```
-http://127.0.0.1:8000/api/v1/categories/
+/api/v1/titles/
 ```
 ```
-http://127.0.0.1:8000/api/v1/genres/
+/api/v1/categories/
 ```
 ```
-http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/
+/api/v1/genres/
 ```
 ```
-http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/
+/api/v1/titles/{title_id}/reviews/
 ```
+```
+/api/v1/titles/{title_id}/reviews/{review_id}/comments/
+```
+### Авторы
+_Сергей Марахтанов, python-developer_
+_Иван Афанасьев, python-developer_
