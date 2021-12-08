@@ -86,5 +86,5 @@ GET-запросы
 /api/v1/titles/{title_id}/reviews/{review_id}/comments/
 ```
 ### Авторы
-_Сергей Марахтанов, python-developer_
+_Сергей Марахтанов, python-developer_  
 _Иван Афанасьев, python-developer_
