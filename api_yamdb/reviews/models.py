@@ -4,11 +4,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class User(AbstractUser):
-    class UserRoles(models.TextChoices):
-        USER = 'user'
-        ADMIN = 'admin'
-        MODERATOR = 'moderator'
-
+    USER_ROLES = [
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin'),
+    ]
     username = models.SlugField(
         'Имя пользователя',
         help_text='Имя пользователя',
@@ -49,18 +49,18 @@ class User(AbstractUser):
         help_text='Роль пользователя',
         max_length=150,
         blank=False,
-        choices=UserRoles.choices,
-        default=UserRoles.USER,
+        choices=USER_ROLES,
+        default='user',
     )
 
     @property
     def is_admin(self):
-        if self.role == self.UserRoles.ADMIN or self.is_superuser:
+        if self.role == 'admin' or self.is_superuser:
             return True
 
     @property
     def is_moderator(self):
-        if self.role == self.UserRoles.MODERATOR or self.is_superuser:
+        if self.role == 'moderator' or self.is_superuser:
             return True
 
     class Meta:
