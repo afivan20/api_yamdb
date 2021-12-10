@@ -17,6 +17,11 @@ class Command(BaseCommand):
     Review.objects.all().delete()
     Genre.objects.all().delete()
     GenreTitle.objects.all().delete()
+    User(pk=101).delete()
+    User(pk=102).delete()
+    User(pk=103).delete()
+    User(pk=104).delete()
+    User(pk=100).delete()
     reader = csv.DictReader(open(category))
     for row in reader:
         Category.objects.create(id=row['id'], name=row['name'], slug = row['slug'])
@@ -30,6 +35,11 @@ class Command(BaseCommand):
     reader = csv.DictReader(open(genre))
     for row in reader:
         Genre.objects.create(id=row['id'], name=row['name'], slug=row['slug'])
+
+    user_reader = csv.DictReader(open(users))
+    for row in user_reader:
+        User.objects.create(id=row['id'], username=row['username'], email = row['email'], role = row['role'], bio = row['bio'], first_name = row['first_name'], last_name = row['last_name'])
+    
 
     reader = csv.DictReader(open(review))
     for row in reader:
@@ -46,9 +56,6 @@ class Command(BaseCommand):
     for row in reader:
        GenreTitle.objects.create(id=row['id'], title_id=row['title_id'], genre_id = row['genre_id'] )
 
-    user_reader = csv.DictReader(open(users))
-    for row in user_reader:
-        User.objects.create(id=row['id'], username=row['username'], email = row['email'], role = row['role'], bio = row['bio'], first_name = row['first_name'], last_name = row['last_name'])
     
    
     
